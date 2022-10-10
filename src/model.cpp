@@ -1,19 +1,18 @@
 #include "model.hpp"
-
-#include "opencv2/core.hpp"
-
+#include "opencv2/highgui.hpp"
+#include "opencv2/imgproc.hpp"
+#include "math.h"
 #include "kl_error.hpp"
 
 KLError Model::init(const char *model_path) {
-    // Implementation missing...
-    return KLError::NONE;
+
 }
 
 float Model::inference(const char *img_path) {
-    // Implementation missing...
-    return 0.0;
+    float *model_input = interpreter_->typed_input_tensor<float>(0);
+
 }
 
 void Model::convert_image(const cv::Mat &src, float *dest) {
-    // Implementation missing...
+
 }
