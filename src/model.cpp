@@ -18,7 +18,7 @@
 /**
  * @brief Converts timeval to milliseconds
  */
-double get_us(struct timeval t) { return (t.tv_sec * 1000000 + t.tv_usec); }
+int to_millis(struct timeval time) { return (time.tv_sec * (uint64_t)1000) + (time.tv_usec / 1000); }
 
 /**
  * @brief Returns max element index
@@ -43,7 +43,7 @@ int argmax(float *output, int classes) {
  * @return KLError loading status
  */
 KLError Model::init(const char *model_path) {
-    //Logger::info("Loading model...");
+    Logger::info("Loading model...");
 
     // Load model
     model_ = tflite::FlatBufferModel::BuildFromFile(model_path);
@@ -59,7 +59,7 @@ KLError Model::init(const char *model_path) {
     // Allocate tensor buffers.
     TFLITE_MINIMAL_CHECK(interpreter_->AllocateTensors() == kTfLiteOk, "Failed to allocate tensors");
 
-    //Logger::info("Finished loading model.");
+    Logger::info("Finished loading model.");
     return KLError::NONE;
 }
 
@@ -72,7 +72,7 @@ KLError Model::init(const char *model_path) {
 float Model::inference(const char *img_path) {
     if(model_==nullptr)
     { 
-        Logger::error("Model has not been properly looaded!");
+        Logger::error("Model has not been properly looaded.");
         throw KLError::MODEL_INFERENCE_ERROR;
     }
 
@@ -98,12 +98,12 @@ float Model::inference(const char *img_path) {
         throw KLError::MODEL_INFERENCE_ERROR;
     }
     gettimeofday(&stop_time, nullptr);
-    //Logger::info("Inference time: " +  std::to_string(get_us(stop_time) - get_us(start_time)) + ".");
+    Logger::debug("Inference time: " +  std::to_string(to_millis(stop_time) - to_millis(start_time)) + "ms");
 
 
     float *output = interpreter_->typed_output_tensor<float>(0);
     std::string label = argmax(output, 3) == 1 ? "Real" : "Fake";
-    //Logger::info("Image is " + label + " face");
+    Logger::info("Image is " + label + " face");
 
     return output[1];
 }

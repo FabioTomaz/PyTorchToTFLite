@@ -17,7 +17,7 @@ private:
     static const loglevel current_level = KL_LOG_INFO;
 
     static void log(const loglevel level, const std::string &message) {
-        const char *type;
+        const char *type = "";
 
         switch (level) {
             case KL_LOG_ERROR:
