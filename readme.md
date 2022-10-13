@@ -21,7 +21,8 @@ Whenever you find a question, it should be answered in place. All questions are 
 ### 1. Building the project
 
 - Prepare your environment with CMake, a C++ 17 compiler and pthread. As far as I can remember, these are the only requirements.
-- You can build the project by running `./bin/build_macos.sh` or `./bin/build_linux.sh`, but it will probably fail. What is the cause? It didn't fail on my machine.
+- You can build the project by running `./bin/build_macos.sh` or `./bin/build_linux.sh`, but it will probably fail. What is the cause? 
+  - OpenCV libraries are not linked to our program. 
 - Edit the `src/CMakeLists.txt` - and the `cmake/generate_ar_input_file.cmake` if you are on linux - to fix it.
 
 ### 2. Understanding Silent-Face-Anti-Spoofing
@@ -67,9 +68,9 @@ Whenever you find a question, it should be answered in place. All questions are 
 - Is it possible to convert the model directly from PyTorch to TFLite?
   - It is not possible
 - If not, which are the intermediates required for this conversion?
-  - Convert torch model to ONNX
-  - Convert ONNX model to tensorflow model
-  - Convert tensorflow model to tensorflow lite model
+  - Export ONNX model using pyTorch
+  - Convert ONNX model to tensorflow model (e.g. SavedModel format)
+  - Convert tensorflow model to tensorflow lite model (.tflite)
 - Convert the `2.7_80x80_MiniFASNetV2.pth` model to TFLite and place it inside `assets/models`.
 
 ### 5. Generating test images
@@ -87,10 +88,15 @@ Whenever you find a question, it should be answered in place. All questions are 
   - `convert_image`, which should convert the image to the correct format before sending it to the network.
 - The opencv2 lib is available for you to read image files from disk.
 - Does the input image have channel-first or channel-last format?
+  - OpenCV read the Input image has channel-last format, while model has channel-first format.
 - What is the input image colorspace?
+  - OpenCV reads the image in BGR colorspace
 
 ### 7. Testing your solution
 
 - Build your solution
 - Test your solution by running `bin/test_macos.sh` or `bin/test_linux.sh`
 - What are the genuine scores for each test image?
+  - image_F1.jpg -> 0.00132
+  - image_F2.jpg -> 0.00063
+  - image_T1.jpg -> 0.98922

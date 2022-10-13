@@ -7,7 +7,7 @@ int main() {
 
     // Initialize TFLite model
     // Current folder is PROJECT_ROOT/test
-    instance.init("../assets/models/2.7_80x80_MiniFASNetV2_bhoke.tflite");
+    instance.init("../assets/models/2.7_80x80_MiniFASNetV2.tflite");
 
     std::vector<std::string> test_images = {
         "fixtures/image_F1.bmp",
