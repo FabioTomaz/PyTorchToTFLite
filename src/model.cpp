@@ -7,21 +7,14 @@
 #include "math.h"
 #include "kl_error.hpp"
 #include "logger.hpp"
-
-
-#define TFLITE_MINIMAL_CHECK(x, msg)        \
-  if (!(x)) {                               \
-    Logger::error(msg);                     \
-    return KLError::MODEL_LOAD_ERROR;       \
-  }                                         
-
+                                       
 /**
- * @brief Converts timeval to milliseconds
+ * @brief Utility function to convert timeval to milliseconds
  */
-int to_millis(struct timeval time) { return (time.tv_sec * (uint64_t)1000) + (time.tv_usec / 1000); }
+uint64_t to_millis(struct timeval time) { return (time.tv_sec * (uint64_t)1000) + (time.tv_usec / 1000); }
 
 /**
- * @brief Returns max element index
+ * @brief Utility function to get max element index
  */
 int argmax(float *output, int classes) {
     float max = 0;
@@ -47,17 +40,26 @@ KLError Model::init(const char *model_path) {
 
     // Load model
     model_ = tflite::FlatBufferModel::BuildFromFile(model_path);
-    TFLITE_MINIMAL_CHECK(model_ != nullptr, "Failed to load model from file");
+    if (model_ == nullptr) {                              
+        Logger::error("Failed to load model from file");                     
+        return KLError::MODEL_LOAD_ERROR;       
+    }   
 
     // Build and set up the interpreter with the InterpreterBuilder
     // to allocate memory and read the provided model.
     tflite::ops::builtin::BuiltinOpResolver resolver;
     tflite::InterpreterBuilder builder(*model_, resolver);
     builder(&interpreter_);
-    TFLITE_MINIMAL_CHECK(interpreter_ != nullptr, "Failed to build interpreter");
+    if (interpreter_ == nullptr) {                              
+        Logger::error("Failed to build interpreter");                     
+        return KLError::MODEL_LOAD_ERROR;       
+    }   
 
     // Allocate tensor buffers.
-    TFLITE_MINIMAL_CHECK(interpreter_->AllocateTensors() == kTfLiteOk, "Failed to allocate tensors");
+    if (interpreter_->AllocateTensors() != kTfLiteOk) {                              
+        Logger::error("Failed to allocate tensors");                     
+        return KLError::MODEL_LOAD_ERROR;       
+    }   
 
     Logger::info("Finished loading model.");
     return KLError::NONE;
@@ -127,4 +129,3 @@ void Model::convert_image(const cv::Mat &src, float *dest) {
         }
     }
 }
-
