@@ -32,8 +32,9 @@ Whenever you find a question, it should be answered in place. All questions are 
   - A fully connected linear layer that takes 128 inputs and outputs 3 activations, representing each of the output classes. These are then converted to softmax scores later.
 
 - What preprocessing operations an image undergoes before being inputted to the network?
-  - Image gets converted to PIL image
-  - 
+  - The face detector is used to crop the face frame
+  - The edge of the face frame is expanded by a 2.7 scale
+  - The face crop is resized to 80x80
   - Converts the numpy array (H x W x C) in the range [0, 255] to a torch.FloatTensor of shape (C x H x W) in the range [0.0, 1.0].
 
 - Does the input image have channel-first or channel-last format?
@@ -58,9 +59,9 @@ Whenever you find a question, it should be answered in place. All questions are 
 - Modify the `test.py` script to output only the genuine score.
 - Run the `test.py` script for `image_F1.jpg`, `image_F2.jpg` and `image_T1.jpg` images.
 - What are the genuine scores for each one of them?
-  - image_F1.jpg -> 0.00133
-  - image_F2.jpg -> 0.00064
-  - image_T1.jpg -> 0.99023 
+  - image_F1.jpg -> 0.001334
+  - image_F2.jpg -> 0.000639
+  - image_T1.jpg -> 0.990231
 - You will have to reproduce the scores from the previous step later when using TFLite.
 
 ### 4. Converting the model to TFLite
@@ -68,6 +69,7 @@ Whenever you find a question, it should be answered in place. All questions are 
 - Is it possible to convert the model directly from PyTorch to TFLite?
   - It is not possible
 - If not, which are the intermediates required for this conversion?
+  - Add softmax layer before exporting model
   - Export ONNX model using pyTorch
   - Convert ONNX model to tensorflow model (e.g. SavedModel format)
   - Convert tensorflow model to tensorflow lite model (.tflite)
@@ -77,8 +79,8 @@ Whenever you find a question, it should be answered in place. All questions are 
  
 - You should generate the test images for your C++ code and place them inside `test/fixtures`.
 - Note from `test/test_main.cpp` that they must be in `bmp` format. Any hunch why we use `bmp` instead of `jpg` here?
-  - The BMP file format supports various color depths, alpha channels, color profiles, and optional data compression, thus making it relatively versatile.
-  - Furthermore, the format can be used for storing crisp and high-quality images because it can store color data for each pixel in the image without any compression.
+  - The BMP file format can be used for storing high-quality images because it can store color data for each pixel in the image without any compression. Moreover, the JPG format uses lossy compression for storing images which would change the color data for some pixels.
+  - Therefore, we use the BMP to make sure that we are not losing quality after cropping and resizing the image, and set same benchmark to compare the results.
 
 ### 6. Implementing the C++ code
 
@@ -97,6 +99,6 @@ Whenever you find a question, it should be answered in place. All questions are 
 - Build your solution
 - Test your solution by running `bin/test_macos.sh` or `bin/test_linux.sh`
 - What are the genuine scores for each test image?
-  - image_F1.jpg -> 0.00132
-  - image_F2.jpg -> 0.00063
-  - image_T1.jpg -> 0.98922
+  - image_F1.jpg -> 0.001333
+  - image_F2.jpg -> 0.000639
+  - image_T1.jpg -> 0.990223
