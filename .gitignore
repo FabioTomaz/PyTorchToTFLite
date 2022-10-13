@@ -3,4 +3,5 @@
 build/*
 !assets/models/.keep
 assets/models/*
+!assets/models/2.7_80x80_MiniFASNetV2.tflite
 cmake-build-debug/*
