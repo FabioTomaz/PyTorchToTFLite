@@ -22,6 +22,9 @@ private:
 
     std::unique_ptr<tflite::FlatBufferModel> model_;
     std::unique_ptr<tflite::Interpreter> interpreter_;
+
+    int model_height = 80;
+    int model_width = 80;
 };
 
 #endif //KL_CHALLENGE_MODEL_H

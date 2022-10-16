@@ -21,19 +21,37 @@ Whenever you find a question, it should be answered in place. All questions are 
 ### 1. Building the project
 
 - Prepare your environment with CMake, a C++ 17 compiler and pthread. As far as I can remember, these are the only requirements.
-- You can build the project by running `./bin/build_macos.sh` or `./bin/build_linux.sh`, but it will probably fail. What is the cause?
+- You can build the project by running `./bin/build_macos.sh` or `./bin/build_linux.sh`, but it will probably fail. What is the cause? 
+  - OpenCV libraries are not linked to our program. 
 - Edit the `src/CMakeLists.txt` - and the `cmake/generate_ar_input_file.cmake` if you are on linux - to fix it.
 
 ### 2. Understanding Silent-Face-Anti-Spoofing
 
 - You should start from the `test.py` file.
-- Take a look at the networks' architecture. What is the last layer?
+- Take a look at the networks' architecture. What is the last layer? <br/>
+  - A fully connected linear layer that takes 128 inputs and outputs 3 activations, representing each of the output classes. These are then converted to softmax scores later.
+
 - What preprocessing operations an image undergoes before being inputted to the network?
+  - The face detector is used to crop the face frame
+  - The edge of the face frame is expanded by a 2.7 scale
+  - The face crop is resized to 80x80
+  - Converts the numpy array (H x W x C) in the range [0, 255] to a torch.FloatTensor of shape (C x H x W) in the range [0.0, 1.0].
+
 - Does the input image have channel-first or channel-last format?
+  - Images are read in channel-last format and converted to channel-first format for the model input.
+
 - What is the input image colorspace?
+  - BGR
+
 - How many classes image can be classified into?
+  - 3 classes
+
 - What is the index for the genuine (real face) classification score?
+  - Index 1 
+
 - Apart from the anti-spoofing models, does the code use any other ML model?
+  - A face detection model for extracting the face bounding box before giving it as input for the anti spoof model
+
 
 ### 3. Testing Silent-Face-Anti-Spoofing
 
@@ -41,18 +59,28 @@ Whenever you find a question, it should be answered in place. All questions are 
 - Modify the `test.py` script to output only the genuine score.
 - Run the `test.py` script for `image_F1.jpg`, `image_F2.jpg` and `image_T1.jpg` images.
 - What are the genuine scores for each one of them?
+  - image_F1.jpg -> 0.001334
+  - image_F2.jpg -> 0.000639
+  - image_T1.jpg -> 0.990231
 - You will have to reproduce the scores from the previous step later when using TFLite.
 
 ### 4. Converting the model to TFLite
 
 - Is it possible to convert the model directly from PyTorch to TFLite?
+  - It is not possible
 - If not, which are the intermediates required for this conversion?
+  - Add softmax layer before exporting model
+  - Export ONNX model using pyTorch
+  - Convert ONNX model to tensorflow model (e.g. SavedModel format)
+  - Convert tensorflow model to tensorflow lite model (.tflite)
 - Convert the `2.7_80x80_MiniFASNetV2.pth` model to TFLite and place it inside `assets/models`.
 
 ### 5. Generating test images
  
 - You should generate the test images for your C++ code and place them inside `test/fixtures`.
 - Note from `test/test_main.cpp` that they must be in `bmp` format. Any hunch why we use `bmp` instead of `jpg` here?
+  - The BMP file format can be used for storing high-quality images because it can store color data for each pixel in the image without any compression. Moreover, the JPG format uses lossy compression for storing images which would change the color data for some pixels.
+  - Therefore, we use the BMP to make sure that we are not losing quality after cropping and resizing the image, and set same benchmark to compare the results.
 
 ### 6. Implementing the C++ code
 
@@ -61,11 +89,16 @@ Whenever you find a question, it should be answered in place. All questions are 
   - `inference`, which should load an image from disk and pass it through the network.
   - `convert_image`, which should convert the image to the correct format before sending it to the network.
 - The opencv2 lib is available for you to read image files from disk.
-  - Does the input image have channel-first or channel-last format?
-  - What is the input image colorspace?
+- Does the input image have channel-first or channel-last format?
+  - OpenCV read the Input image has channel-last format, while model has channel-first format.
+- What is the input image colorspace?
+  - OpenCV reads the image in BGR colorspace
 
 ### 7. Testing your solution
 
 - Build your solution
 - Test your solution by running `bin/test_macos.sh` or `bin/test_linux.sh`
 - What are the genuine scores for each test image?
+  - image_F1.jpg -> 0.001333
+  - image_F2.jpg -> 0.000639
+  - image_T1.jpg -> 0.990223
