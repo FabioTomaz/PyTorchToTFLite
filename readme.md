@@ -1,4 +1,4 @@
-## Keyless Challenge
+## PyTorchToTFLite
 
 Your task is to convert a PyTorch model to TFLite and reproduce the same inference scores obtained in python in this C++ project. For this challenge, we will use a computer vision deep learning model for anti-spoofing from the [Silent-Face-Anti-Spoofing github repo](https://github.com/minivision-ai/Silent-Face-Anti-Spoofing).
 
